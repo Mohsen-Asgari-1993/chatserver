@@ -166,10 +166,10 @@ public class Client extends javax.swing.JFrame {
     }
 
     static void listClient() {
-        System.out.println(MyList.getList());
-        Object[][] o = new Object[MyList.getList().size()][1];
-        for (int i = 0; i < MyList.getList().size(); i++) {
-            o[i][0] = MyList.getList().get(i);
+        System.out.println(Client.list);
+        Object[][] o = new Object[Client.list.size()][1];
+        for (int i = 0; i < Client.list.size(); i++) {
+            o[i][0] = Client.list.get(i);
 
         }
         DefaultTableModel dm = new DefaultTableModel(o, new String[]{"Client"});
@@ -242,8 +242,10 @@ class RecieveThread implements Runnable {
             while (true) {
                 while ((msgRecieved = recieve.readLine()) != null) {
                     if (msgRecieved.startsWith("user")) {
+                        System.out.println("1");
+                        System.out.println(msgRecieved.substring(4));
                         
-                        MyList.setName(msgRecieved.substring(4));
+                        Client.list.add(msgRecieved.substring(4));
                         Client.listClient();
 
                     } else {

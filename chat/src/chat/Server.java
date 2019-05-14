@@ -12,7 +12,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class Server extends javax.swing.JFrame {
 
+    static Map<String, Socket> mapUserList = new HashMap<>();
     private static List<User> userList = new ArrayList<>();
     private static List<String> onlineUser = new ArrayList<>();
     private static List<Socket> socketList = new ArrayList<>();
@@ -211,6 +214,14 @@ public class Server extends javax.swing.JFrame {
         Server.onlineUser.add(s);
     }
 
+    public static Map<String, Socket> getMapUserList() {
+        return mapUserList;
+    }
+
+    public static void setMapUserList(Map<String, Socket> mapUserList) {
+        Server.mapUserList = mapUserList;
+    }
+
     public static List<String> getOnlineUser() {
         return onlineUser;
     }
@@ -248,15 +259,18 @@ class ServerStart implements Runnable {
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                         socket.getOutputStream()));
                 if (isTrue) {
+
                     writer.println("true");
                     writer.flush();
                     String name = "";
                     for (User u : Server.getUserList()) {
                         if (socket == u.getSocket()) {
+                            Server.mapUserList.put(u.getUserName(), socket);
+                            System.out.println(Server.mapUserList);
                             name = u.getUserName();
                             Server.addUser(name);
                             Server.addSocket(socket);
-                            System.out.println("list1");
+//                            System.out.println("list1");
                         }
                     }
                     Server.print("\t\t new Connection found!!! :" + name);
@@ -266,12 +280,21 @@ class ServerStart implements Runnable {
                     for (Socket s : Server.getSocketList()) {
                         writer = new PrintWriter(new OutputStreamWriter(
                                 s.getOutputStream()));
-                        for (int i = 0; i < Server.getOnlineUser().size(); i++) {
-                            writer.println("user"+Server.getOnlineUser().get(i));
+//                        for (int i = 0; i < Server.getOnlineUser().size(); i++) {
+                        for (Map.Entry<String, Socket> entry : Server.getMapUserList().entrySet()) {
+//                            writer.println("user"+Server.getOnlineUser().get(i));
+                            writer.println("user" + entry.getKey()+"");
                             writer.flush();
+
+                            System.out.println(entry.getKey());
                         }
 
-                        System.out.println("12");
+//                        for ( Map.Entry<String, Tab> entry : hash.entrySet()) {
+//    String key = entry.getKey();
+//    Tab tab = entry.getValue();
+                        // do something with key and/or tab
+//}
+//                        System.out.println("12");
                     }
                 } else {
                     writer.println("false");
