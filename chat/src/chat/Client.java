@@ -5,17 +5,29 @@
  */
 package chat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author king
  */
 public class Client extends javax.swing.JFrame {
 
+    private static Socket socket = null;
+    private static int i = 0;
+
     /**
      * Creates new form Client
      */
     public Client() {
         initComponents();
+        i++;
     }
 
     /**
@@ -27,21 +39,120 @@ public class Client extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        TA = new javax.swing.JTextArea();
+        TF = new javax.swing.JTextField();
+        send = new javax.swing.JButton();
+        con = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        TA.setColumns(20);
+        TA.setRows(5);
+        jScrollPane1.setViewportView(TA);
+
+        TF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TFActionPerformed(evt);
+            }
+        });
+
+        send.setText("send");
+        send.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendActionPerformed(evt);
+            }
+        });
+
+        con.setText("connect");
+        con.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                conActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                    .addComponent(TF))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(send)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(con)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(42, 42, 42)
+                        .addComponent(con)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(send))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void TFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TFActionPerformed
+
+    private void conActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conActionPerformed
+        // TODO add your handling code here:
+        try {
+            socket = new Socket("localhost", 5050);
+//            SendThread sendThread = new SendThread(sock);
+//            Thread thread = new Thread(sendThread);
+//            thread.start();
+            RecieveThread recieveThread = new RecieveThread(socket);
+            Thread thread2 = new Thread(recieveThread);
+            thread2.start();
+            con.setEnabled(false);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }//GEN-LAST:event_conActionPerformed
+
+    private void sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendActionPerformed
+        // TODO add your handling code here:
+        String text = TF.getText();
+        if (text != null && !text.equals("")) {
+            PrintWriter pw = null;
+            try {
+                pw = new PrintWriter(socket.getOutputStream());
+                pw.println(text);
+                pw.flush();
+                TF.setText("");
+                TA.append("\nMe: " + text);
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_sendActionPerformed
+    public static void print(String s) {
+        TA.append("\n" + s);
+    }
+
+    public static String getMessage() {
+        return TF.getText();
+    }
 
     /**
      * @param args the command line arguments
@@ -73,11 +184,45 @@ public class Client extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Client().setVisible(true);
+                Client c = new Client();
+                c.setVisible(true);
+                c.setTitle("Client " + i);
+                i++;
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JTextArea TA;
+    private static javax.swing.JTextField TF;
+    private javax.swing.JButton con;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton send;
     // End of variables declaration//GEN-END:variables
+}
+
+class RecieveThread implements Runnable {
+
+    private Socket sock = null;
+    private BufferedReader recieve = null;
+
+    public RecieveThread(Socket sock) {
+        this.sock = sock;
+    }//end constructor
+
+    public void run() {
+        try {
+            recieve = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));//get inputstream
+            String msgRecieved = null;
+            while (true) {
+                while ((msgRecieved = recieve.readLine()) != null) {
+                    Client.print("Server : " + msgRecieved);
+                    System.out.println("From Server: " + msgRecieved);
+                    System.out.println("Please enter something to send to server..");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }//end run
 }
