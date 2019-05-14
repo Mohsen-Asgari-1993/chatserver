@@ -11,6 +11,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -18,13 +20,18 @@ import java.net.Socket;
  */
 public class Server extends javax.swing.JFrame {
 
+    private static List<User> list = new ArrayList<>();
+
     /**
      * Creates new form Server
      */
     public Server() {
         initComponents();
-    }
+        list.add(new User("Ali", "mat"));
+        list.add(new User("mat", "far"));
 
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -200,7 +207,7 @@ public class Server extends javax.swing.JFrame {
 class ServerStart implements Runnable {
 
     private int i = 1;
-    
+
     @Override
     public void run() {
         try {
@@ -218,7 +225,7 @@ class ServerStart implements Runnable {
             e.printStackTrace();
         }
     }
-   
+
 }
 
 class ClientHandler implements Runnable {
