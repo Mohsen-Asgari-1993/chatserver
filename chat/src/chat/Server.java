@@ -21,6 +21,7 @@ import java.util.List;
 public class Server extends javax.swing.JFrame {
 
     private static List<User> userList = new ArrayList<>();
+    private static List<String> onlineUser = new ArrayList<>();
     private static List<Socket> socketList = new ArrayList<>();
 
     /**
@@ -206,15 +207,21 @@ public class Server extends javax.swing.JFrame {
         Server.userList = userList;
     }
 
+    public static void addUser(String s) {
+        Server.onlineUser.add(s);
+    }
+
+    public static List<String> getOnlineUser() {
+        return onlineUser;
+    }
+
     public static List<Socket> getSocketList() {
         return socketList;
     }
 
-    public static void setSocketList(List<Socket> socketList) {
-        Server.socketList = socketList;
+    public static void addSocket(Socket soc) {
+        Server.socketList.add(soc);
     }
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Send;
     private javax.swing.JButton Start;
@@ -248,6 +255,8 @@ class ServerStart implements Runnable {
                     for (User u : Server.getUserList()) {
                         if (socket == u.getSocket()) {
                             name = u.getUserName();
+                            Server.addUser(name);
+                            Server.addSocket(socket);
                         }
                     }
                     Server.print("\t\t new Connection found!!! :" + name);
@@ -257,6 +266,11 @@ class ServerStart implements Runnable {
                 } else {
                     writer.println("false");
                     writer.flush();
+                }
+                for (Socket s : Server.getSocketList()) {
+                    writer = new PrintWriter(new OutputStreamWriter(
+                            s.getOutputStream()));
+                    writer.println(Server.getOnlineUser());
                 }
             }
         } catch (Exception e) {
