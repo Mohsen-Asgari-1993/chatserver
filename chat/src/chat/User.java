@@ -5,6 +5,8 @@
  */
 package chat;
 
+import java.net.Socket;
+
 /**
  *
  * @author king
@@ -13,8 +15,7 @@ public class User {
 
     private String userName;
     private String passWord;
-    private String ip;
-    private int port;
+    private Socket socket;
 
     public User(String userName, String passWord) {
         this.userName = userName;
@@ -37,20 +38,12 @@ public class User {
         this.passWord = passWord;
     }
 
-    public String getIp() {
-        return ip;
+    public Socket getSocket() {
+        return socket;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
+    public void setSocket(Socket socket) {
+        this.socket = socket;
     }
 
 }

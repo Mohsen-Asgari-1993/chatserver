@@ -20,18 +20,20 @@ import java.util.List;
  */
 public class Server extends javax.swing.JFrame {
 
-    private static List<User> list = new ArrayList<>();
+    private static List<User> userList = new ArrayList<>();
+    private static List<Socket> socketList = new ArrayList<>();
 
     /**
      * Creates new form Server
      */
     public Server() {
         initComponents();
-        list.add(new User("Ali", "mat"));
-        list.add(new User("mat", "far"));
-
+        userList.add(new User("Ali", "mat"));
+        userList.add(new User("mat", "far"));
+        userList.add(new User("mohsen", "asgari"));
+        userList.add(new User("mohammad", "farahani"));
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -195,6 +197,24 @@ public class Server extends javax.swing.JFrame {
     public static String getMessage() {
         return TF.getText();
     }
+
+    public static List<User> getUserList() {
+        return userList;
+    }
+
+    public static void setUserList(List<User> userList) {
+        Server.userList = userList;
+    }
+
+    public static List<Socket> getSocketList() {
+        return socketList;
+    }
+
+    public static void setSocketList(List<Socket> socketList) {
+        Server.socketList = socketList;
+    }
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Send;
     private javax.swing.JButton Start;
@@ -212,20 +232,46 @@ class ServerStart implements Runnable {
     public void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(5050);
-//            SendToClient send = new SendToClient();
-//            new Thread(send).start();
             while (true) {
                 Socket socket = serverSocket.accept();
-                Server.print("\t\t new Connection found!!! :Client: " + i);
-                ClientHandler client = new ClientHandler(socket, i);
-                new Thread(client).start();
-                i++;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String text = reader.readLine();
+                boolean isTrue = compare(text, socket);
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+                        socket.getOutputStream()));
+                if (isTrue) {
+                    writer.println("true");
+                    writer.flush();
+                    String name = "";
+                    for (User u : Server.getUserList()) {
+                        if (socket == u.getSocket()) {
+                            name = u.getUserName();
+                        }
+                    }
+                    Server.print("\t\t new Connection found!!! :" + name);
+                    ClientHandler client = new ClientHandler(socket, i);
+                    new Thread(client).start();
+                    i++;
+                } else {
+                    writer.println("true");
+                    writer.flush();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private static boolean compare(String s, Socket socket) {
+        String[] data = s.split(":");
+        for (User u : Server.getUserList()) {
+            if (u.getUserName().equals(data[0]) && u.getPassWord().equals(data[1])) {
+                u.setSocket(socket);
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 class ClientHandler implements Runnable {
