@@ -6,6 +6,7 @@
 package chat;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -397,37 +398,11 @@ class RecieveFromClient implements Runnable {
                     if (msg.startsWith(":@sendto:")) {
                         msg = msg.replace(":@sendto:", "");
                         String[] data = msg.split(":");
-                        String senderuser = null;
-                        Socket senderSocket = null;
-                        for (Map.Entry<String, Socket> entry : Server.mapUserList.entrySet()) {
-                            if (socket == entry.getValue()) {
-                                senderuser = entry.getKey();
-                                senderSocket = entry.getValue();
-                            }
+                        String senderuser = data[0];
+                        Socket senderSocket = Server.mapUserList.get(senderuser);
+                        DataOutputStream out = new DataOutputStream(senderSocket.getOutputStream());
+                        out.writeUTF(data[1]);
                         }
-
-                        for (String u : Server.mapUserList.keySet()) {
-                               
-                            if (data[0].equals(u)) {
-                                System.out.println(data[0]);
-                                Socket s = Server.mapUserList.get(u);
-
-                                System.out.println("sender :" + senderuser + " Port:" + senderSocket.getPort()
-                                        + " \n Riciver : " + u + " Port:" +s.getPort());
-
-//                                System.out.println("user: " + u + "-Socket" + ":" + s);
-                                PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
-                                pw.write(data[1]);
-
-                            }
-
-                        }
-
-                    }
-
-//                    if (msg.equals("EXIT")) {
-//                        break;
-//                    }
                     setClientSocket(socket);
                     Server.print("client " + i + ":" + msg);
                     System.out.println("From Client" + i + " : " + msg + " from port : " + socket.getPort());//print the message from client
