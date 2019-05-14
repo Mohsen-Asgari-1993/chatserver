@@ -8,17 +8,22 @@ package chat;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
  * @author king
  */
 public class Client extends javax.swing.JFrame {
-
+    static List<String> list=new ArrayList<>();
     private static Socket socket = null;
     private static int i = 0;
 
@@ -44,7 +49,6 @@ public class Client extends javax.swing.JFrame {
             RecieveThread recieveThread = new RecieveThread(socket);
             Thread thread2 = new Thread(recieveThread);
             thread2.start();
-            con.setEnabled(false);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -63,7 +67,8 @@ public class Client extends javax.swing.JFrame {
         TA = new javax.swing.JTextArea();
         TF = new javax.swing.JTextField();
         send = new javax.swing.JButton();
-        con = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -84,12 +89,18 @@ public class Client extends javax.swing.JFrame {
             }
         });
 
-        con.setText("connect");
-        con.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                conActionPerformed(evt);
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null},
+                {null},
+                {null},
+                {null}
+            },
+            new String [] {
+                "Client"
             }
-        });
+        ));
+        jScrollPane3.setViewportView(jTable2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -98,33 +109,28 @@ public class Client extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-                    .addComponent(TF))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(send)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(con)
-                        .addContainerGap())))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(TF, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(send, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(con)))
-                .addGap(18, 18, 18)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(TF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(send))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         pack();
@@ -133,22 +139,6 @@ public class Client extends javax.swing.JFrame {
     private void TFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TFActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_TFActionPerformed
-
-    private void conActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conActionPerformed
-        // TODO add your handling code here:
-        try {
-//            socket = new Socket("localhost", 5050);
-//            SendThread sendThread = new SendThread(sock);
-//            Thread thread = new Thread(sendThread);
-//            thread.start();
-            RecieveThread recieveThread = new RecieveThread(socket);
-            Thread thread2 = new Thread(recieveThread);
-            thread2.start();
-            con.setEnabled(false);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }//GEN-LAST:event_conActionPerformed
 
     private void sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendActionPerformed
         // TODO add your handling code here:
@@ -169,11 +159,22 @@ public class Client extends javax.swing.JFrame {
     public static void print(String s) {
         TA.append("\n" + s);
     }
+   
 
     public static String getMessage() {
         return TF.getText();
     }
-
+    static void listClient(){
+        Object[][] o =new Object[list.size()][0];
+       for(int i=0;i<list.size();i++){
+           o[i][0]=list.get(i);
+           
+               
+       } 
+        TableModel dm=new DefaultTableModel(o,new String[]{"Client"});
+        jTable2.setModel(dm);
+        dm.addTableModelListener(jTable2);
+    }
     /**
      * @param args the command line arguments
      */
@@ -215,8 +216,9 @@ public class Client extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private static javax.swing.JTextArea TA;
     private static javax.swing.JTextField TF;
-    private javax.swing.JButton con;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private static javax.swing.JTable jTable2;
     private javax.swing.JButton send;
     // End of variables declaration//GEN-END:variables
 }
@@ -234,13 +236,20 @@ class RecieveThread implements Runnable {
         try {
             recieve = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));//get inputstream
             String msgRecieved = null;
+            
             while (true) {
                 while ((msgRecieved = recieve.readLine()) != null) {
+                    if(msgRecieved.startsWith("user")){
+                       Client.list.add(msgRecieved.substring(4));
+                       Client.listClient();
+                       
+                    }else{
                     Client.print("Server : " + msgRecieved);
                     System.out.println("From Server: " + msgRecieved);
                     System.out.println("Please enter something to send to server..");
                 }
-            }
+            }}
+            
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
