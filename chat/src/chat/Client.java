@@ -30,6 +30,11 @@ public class Client extends javax.swing.JFrame {
         i++;
     }
 
+    public Client(Socket socket) {
+        Client.socket = socket;
+
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -117,7 +122,7 @@ public class Client extends javax.swing.JFrame {
     private void conActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conActionPerformed
         // TODO add your handling code here:
         try {
-            socket = new Socket("localhost", 5050);
+//            socket = new Socket("localhost", 5050);
 //            SendThread sendThread = new SendThread(sock);
 //            Thread thread = new Thread(sendThread);
 //            thread.start();
