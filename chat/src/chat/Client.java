@@ -30,9 +30,24 @@ public class Client extends javax.swing.JFrame {
         i++;
     }
 
-    public Client(Socket socket) {
-        Client.socket = socket;
+    public Client(Socket socket, String username) {
+        initComponents();
 
+        Client.socket = socket;
+        setTitle(username);
+
+        try {
+//            socket = new Socket("localhost", 5050);
+//            SendThread sendThread = new SendThread(sock);
+//            Thread thread = new Thread(sendThread);
+//            thread.start();
+            RecieveThread recieveThread = new RecieveThread(socket);
+            Thread thread2 = new Thread(recieveThread);
+            thread2.start();
+            con.setEnabled(false);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**

@@ -236,10 +236,12 @@ class ServerStart implements Runnable {
                 Socket socket = serverSocket.accept();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String text = reader.readLine();
+
                 boolean isTrue = compare(text, socket);
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                         socket.getOutputStream()));
                 if (isTrue) {
+
                     writer.println("true");
                     writer.flush();
                     String name = "";
@@ -253,7 +255,7 @@ class ServerStart implements Runnable {
                     new Thread(client).start();
                     i++;
                 } else {
-                    writer.println("true");
+                    writer.println("false");
                     writer.flush();
                 }
             }
