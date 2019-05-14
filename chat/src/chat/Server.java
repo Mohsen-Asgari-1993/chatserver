@@ -248,7 +248,6 @@ class ServerStart implements Runnable {
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                         socket.getOutputStream()));
                 if (isTrue) {
-
                     writer.println("true");
                     writer.flush();
                     String name = "";
@@ -263,15 +262,17 @@ class ServerStart implements Runnable {
                     ClientHandler client = new ClientHandler(socket, i);
                     new Thread(client).start();
                     i++;
+                    for (Socket s : Server.getSocketList()) {
+                        writer = new PrintWriter(new OutputStreamWriter(
+                                s.getOutputStream()));
+                        writer.println("user" + name);
+                        writer.flush();
+                    }
                 } else {
                     writer.println("false");
                     writer.flush();
                 }
-                for (Socket s : Server.getSocketList()) {
-                    writer = new PrintWriter(new OutputStreamWriter(
-                            s.getOutputStream()));
-                    writer.println(Server.getOnlineUser());
-                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
