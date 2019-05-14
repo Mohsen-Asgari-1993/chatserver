@@ -29,6 +29,8 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         initComponents();
+        txtip.setText("localhost");
+        txtport.setText("5050");
     }
 
     /**
@@ -127,7 +129,7 @@ public class Login extends javax.swing.JFrame {
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
 
         try {
-            socket = new Socket("localhost", 5050);
+            socket = new Socket(txtip.getText(),Integer.parseInt(txtport.getText()));
             String userpass = txtuser.getText() + ":" + txtpassword.getText();
             send = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             send.println(userpass);

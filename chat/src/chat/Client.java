@@ -23,7 +23,8 @@ import javax.swing.table.TableModel;
  * @author king
  */
 public class Client extends javax.swing.JFrame {
-    static List<String> list=new ArrayList<>();
+
+    static List<String> list = new ArrayList<>();
     private static Socket socket = null;
     private static int i = 0;
 
@@ -159,22 +160,23 @@ public class Client extends javax.swing.JFrame {
     public static void print(String s) {
         TA.append("\n" + s);
     }
-   
 
     public static String getMessage() {
         return TF.getText();
     }
-    static void listClient(){
-        Object[][] o =new Object[list.size()][0];
-       for(int i=0;i<list.size();i++){
-           o[i][0]=list.get(i);
-           
-               
-       } 
-        TableModel dm=new DefaultTableModel(o,new String[]{"Client"});
+
+    static void listClient() {
+        System.out.println(MyList.getList());
+        Object[][] o = new Object[MyList.getList().size()][1];
+        for (int i = 0; i < MyList.getList().size(); i++) {
+            o[i][0] = MyList.getList().get(i);
+
+        }
+        DefaultTableModel dm = new DefaultTableModel(o, new String[]{"Client"});
         jTable2.setModel(dm);
         dm.addTableModelListener(jTable2);
     }
+
     /**
      * @param args the command line arguments
      */
@@ -236,20 +238,22 @@ class RecieveThread implements Runnable {
         try {
             recieve = new BufferedReader(new InputStreamReader(this.sock.getInputStream()));//get inputstream
             String msgRecieved = null;
-            
+
             while (true) {
                 while ((msgRecieved = recieve.readLine()) != null) {
-                    if(msgRecieved.startsWith("user")){
-                       Client.list.add(msgRecieved.substring(4));
-                       Client.listClient();
-                       
-                    }else{
-                    Client.print("Server : " + msgRecieved);
-                    System.out.println("From Server: " + msgRecieved);
-                    System.out.println("Please enter something to send to server..");
+                    if (msgRecieved.startsWith("user")) {
+                        
+                        MyList.setName(msgRecieved.substring(4));
+                        Client.listClient();
+
+                    } else {
+                        Client.print("Server : " + msgRecieved);
+                        System.out.println("From Server: " + msgRecieved);
+                        System.out.println("Please enter something to send to server..");
+                    }
                 }
-            }}
-            
+            }
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

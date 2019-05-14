@@ -256,6 +256,7 @@ class ServerStart implements Runnable {
                             name = u.getUserName();
                             Server.addUser(name);
                             Server.addSocket(socket);
+                            System.out.println("list1");
                         }
                     }
                     Server.print("\t\t new Connection found!!! :" + name);
@@ -265,8 +266,12 @@ class ServerStart implements Runnable {
                     for (Socket s : Server.getSocketList()) {
                         writer = new PrintWriter(new OutputStreamWriter(
                                 s.getOutputStream()));
-                        writer.println("user" + name);
-                        writer.flush();
+                        for (int i = 0; i < Server.getOnlineUser().size(); i++) {
+                            writer.println("user"+Server.getOnlineUser().get(i));
+                            writer.flush();
+                        }
+
+                        System.out.println("12");
                     }
                 } else {
                     writer.println("false");
