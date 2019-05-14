@@ -129,7 +129,7 @@ public class Login extends javax.swing.JFrame {
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
 
         try {
-            socket = new Socket(txtip.getText(),Integer.parseInt(txtport.getText()));
+            socket = new Socket(txtip.getText(), Integer.parseInt(txtport.getText()));
             String userpass = txtuser.getText() + ":" + txtpassword.getText();
             send = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             send.println(userpass);
@@ -138,9 +138,12 @@ public class Login extends javax.swing.JFrame {
             String value = recieve.readLine();
             if (value.equalsIgnoreCase("true")) {
                 new Client(socket, txtuser.getText()).setVisible(true);
-                    this.setVisible(false);
+                this.setVisible(false);
+            } else if (value.equalsIgnoreCase("isonline")) {
+                JOptionPane.showMessageDialog(null, "User is Ready (IsOnline)");
             } else {
                 JOptionPane.showMessageDialog(null, "Wrong pass or user");
+
             }
 
         } catch (Exception e) {

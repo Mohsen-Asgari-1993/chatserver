@@ -27,6 +27,7 @@ public class Client extends javax.swing.JFrame {
     static List<String> list = new ArrayList<>();
     private static Socket socket = null;
     private static int i = 0;
+    
 
     /**
      * Creates new form Client

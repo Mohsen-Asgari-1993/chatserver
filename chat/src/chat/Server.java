@@ -256,10 +256,15 @@ class ServerStart implements Runnable {
                 String text = reader.readLine();
 
                 boolean isTrue = compare(text, socket);
+                boolean isOnlien = checkOnline(text);
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                         socket.getOutputStream()));
                 if (isTrue) {
-
+                    if (isOnlien) {
+                        writer.println("isonline");
+                        writer.flush();
+                        continue;
+                    }
                     writer.println("true");
                     writer.flush();
                     String name = "";
@@ -277,16 +282,26 @@ class ServerStart implements Runnable {
                     ClientHandler client = new ClientHandler(socket, i);
                     new Thread(client).start();
                     i++;
-                    for (Socket s : Server.getSocketList()) {
-                        writer = new PrintWriter(new OutputStreamWriter(
-                                s.getOutputStream()));
-//                        for (int i = 0; i < Server.getOnlineUser().size(); i++) {
-                        for (Map.Entry<String, Socket> entry : Server.getMapUserList().entrySet()) {
-//                            writer.println("user"+Server.getOnlineUser().get(i));
-                            writer.println("user" + entry.getKey()+"");
+//                    for (Socket s : Server.getSocketList()) {
+//                      for (int i = 0; i < Server.getOnlineUser().size(); i++) {
+                    for (Socket s : Server.getMapUserList().values()) {
+                        writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+                        //                        for (Map.Entry<String, Socket> entry : Server.getMapUserList().entrySet()) {
+                        if (socket != s) {
+                            String[] data = text.split(":");
+                            writer.println("user" + data[0]);
                             writer.flush();
+                        } else {
+                            for (String entry : Server.mapUserList.keySet()) {
+//                            writer.println("user"+Server.getOnlineUser().get(i));
+                                if (socket == s) {
+                                    writer.println("user" + entry);
+                                    writer.flush();
 
-                            System.out.println(entry.getKey());
+                                }
+
+                                System.out.println(entry);
+                            }
                         }
 
 //                        for ( Map.Entry<String, Tab> entry : hash.entrySet()) {
@@ -307,6 +322,18 @@ class ServerStart implements Runnable {
         }
     }
 
+    private boolean checkOnline(String text) {
+        String[] data = text.split(":");
+
+        for (String s : Server.mapUserList.keySet()) {
+            if (s.equals(data[0])) {
+                return true;
+            }
+        }
+            return false;
+
+    }
+
     private static boolean compare(String s, Socket socket) {
         String[] data = s.split(":");
         for (User u : Server.getUserList()) {
@@ -316,6 +343,7 @@ class ServerStart implements Runnable {
             }
         }
         return false;
+
     }
 }
 
