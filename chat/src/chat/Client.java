@@ -27,7 +27,6 @@ public class Client extends javax.swing.JFrame {
     static List<String> list = new ArrayList<>();
     private static Socket socket = null;
     private static int i = 0;
-    
 
     /**
      * Creates new form Client
@@ -145,14 +144,26 @@ public class Client extends javax.swing.JFrame {
     private void sendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendActionPerformed
         // TODO add your handling code here:
         String text = TF.getText();
+        String[] newText;
         if (text != null && !text.equals("")) {
             PrintWriter pw = null;
             try {
+                if (jTable2.isRowSelected(0)) {
+                    String user = (String) jTable2.getValueAt(jTable2.getSelectedRow(), jTable2.getSelectedColumn());
+                    System.out.println("select user for send message : " + user);
+                    text = ":@sendto:" + user + ":" + text;
+
+                }
+
                 pw = new PrintWriter(socket.getOutputStream());
                 pw.println(text);
                 pw.flush();
                 TF.setText("");
-                TA.append("\nMe: " + text);
+                if (text.startsWith(":@sendto:")) {
+                    text = text.replace(":@sendto:", "");
+                    newText=text.split(":");
+                    TA.append("\nMe: " + newText[1]);
+                }else TA.append("\nMe: " + text);
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -245,7 +256,7 @@ class RecieveThread implements Runnable {
                     if (msgRecieved.startsWith("user")) {
                         System.out.println("1");
                         System.out.println(msgRecieved.substring(4));
-                        
+
                         Client.list.add(msgRecieved.substring(4));
                         Client.listClient();
 

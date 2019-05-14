@@ -36,6 +36,8 @@ public class Server extends javax.swing.JFrame {
         userList.add(new User("mat", "far"));
         userList.add(new User("mohsen", "asgari"));
         userList.add(new User("mohammad", "farahani"));
+        userList.add(new User("a", "a"));
+        userList.add(new User("b", "b"));
     }
 
     /**
@@ -330,7 +332,7 @@ class ServerStart implements Runnable {
                 return true;
             }
         }
-            return false;
+        return false;
 
     }
 
@@ -391,6 +393,38 @@ class RecieveFromClient implements Runnable {
             String msg;
             while (true) {
                 while ((msg = brBufferedReader.readLine()) != null) {
+
+                    if (msg.startsWith(":@sendto:")) {
+                        msg = msg.replace(":@sendto:", "");
+                        String[] data = msg.split(":");
+                        String senderuser = null;
+                        Socket senderSocket = null;
+                        for (Map.Entry<String, Socket> entry : Server.mapUserList.entrySet()) {
+                            if (socket == entry.getValue()) {
+                                senderuser = entry.getKey();
+                                senderSocket = entry.getValue();
+                            }
+                        }
+
+                        for (String u : Server.mapUserList.keySet()) {
+                               
+                            if (data[0].equals(u)) {
+                                System.out.println(data[0]);
+                                Socket s = Server.mapUserList.get(u);
+
+                                System.out.println("sender :" + senderuser + " Port:" + senderSocket.getPort()
+                                        + " \n Riciver : " + u + " Port:" +s.getPort());
+
+//                                System.out.println("user: " + u + "-Socket" + ":" + s);
+                                PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+                                pw.write(data[1]);
+
+                            }
+
+                        }
+
+                    }
+
 //                    if (msg.equals("EXIT")) {
 //                        break;
 //                    }
