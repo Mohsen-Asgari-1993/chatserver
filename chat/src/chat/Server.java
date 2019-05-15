@@ -6,11 +6,16 @@
 package chat;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,11 +23,22 @@ import java.net.Socket;
  */
 public class Server extends javax.swing.JFrame {
 
+    static Map<String, Socket> mapUserList = new HashMap<>();
+    private static List<User> userList = new ArrayList<>();
+    private static List<String> onlineUser = new ArrayList<>();
+    private static List<Socket> socketList = new ArrayList<>();
+
     /**
      * Creates new form Server
      */
     public Server() {
         initComponents();
+        userList.add(new User("Ali", "mat"));
+        userList.add(new User("mat", "far"));
+        userList.add(new User("mohsen", "asgari"));
+        userList.add(new User("mohammad", "farahani"));
+        userList.add(new User("a", "a"));
+        userList.add(new User("b", "b"));
     }
 
     /**
@@ -188,6 +204,38 @@ public class Server extends javax.swing.JFrame {
     public static String getMessage() {
         return TF.getText();
     }
+
+    public static List<User> getUserList() {
+        return userList;
+    }
+
+    public static void setUserList(List<User> userList) {
+        Server.userList = userList;
+    }
+
+    public static void addUser(String s) {
+        Server.onlineUser.add(s);
+    }
+
+    public static Map<String, Socket> getMapUserList() {
+        return mapUserList;
+    }
+
+    public static void setMapUserList(Map<String, Socket> mapUserList) {
+        Server.mapUserList = mapUserList;
+    }
+
+    public static List<String> getOnlineUser() {
+        return onlineUser;
+    }
+
+    public static List<Socket> getSocketList() {
+        return socketList;
+    }
+
+    public static void addSocket(Socket soc) {
+        Server.socketList.add(soc);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Send;
     private javax.swing.JButton Start;
@@ -200,25 +248,106 @@ public class Server extends javax.swing.JFrame {
 class ServerStart implements Runnable {
 
     private int i = 1;
-    
+
     @Override
     public void run() {
         try {
             ServerSocket serverSocket = new ServerSocket(5050);
-//            SendToClient send = new SendToClient();
-//            new Thread(send).start();
             while (true) {
                 Socket socket = serverSocket.accept();
-                Server.print("\t\t new Connection found!!! :Client: " + i);
-                ClientHandler client = new ClientHandler(socket, i);
-                new Thread(client).start();
-                i++;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String text = reader.readLine();
+
+                boolean isTrue = compare(text, socket);
+                boolean isOnlien = checkOnline(text);
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+                        socket.getOutputStream()));
+                if (isTrue) {
+                    if (isOnlien) {
+                        writer.println("isonline");
+                        writer.flush();
+                        continue;
+                    }
+                    writer.println("true");
+                    writer.flush();
+                    String name = "";
+                    for (User u : Server.getUserList()) {
+                        if (socket == u.getSocket()) {
+                            Server.mapUserList.put(u.getUserName(), socket);
+                            System.out.println(Server.mapUserList);
+                            name = u.getUserName();
+                            Server.addUser(name);
+                            Server.addSocket(socket);
+//                            System.out.println("list1");
+                        }
+                    }
+                    Server.print("\t\t new Connection found!!! :" + name);
+                    ClientHandler client = new ClientHandler(socket, i);
+                    new Thread(client).start();
+                    i++;
+//                    for (Socket s : Server.getSocketList()) {
+//                      for (int i = 0; i < Server.getOnlineUser().size(); i++) {
+                    for (Socket s : Server.getMapUserList().values()) {
+                        writer = new PrintWriter(new OutputStreamWriter(s.getOutputStream()));
+                        //                        for (Map.Entry<String, Socket> entry : Server.getMapUserList().entrySet()) {
+                        if (socket != s) {
+                            String[] data = text.split(":");
+                            writer.println("user" + data[0]);
+                            writer.flush();
+                        } else {
+                            for (String entry : Server.mapUserList.keySet()) {
+//                            writer.println("user"+Server.getOnlineUser().get(i));
+                                if (socket == s) {
+                                    writer.println("user" + entry);
+                                    writer.flush();
+
+                                }
+
+                                System.out.println(entry);
+                            }
+                        }
+
+//                        for ( Map.Entry<String, Tab> entry : hash.entrySet()) {
+//    String key = entry.getKey();
+//    Tab tab = entry.getValue();
+                        // do something with key and/or tab
+//}
+//                        System.out.println("12");
+                    }
+                } else {
+                    writer.println("false");
+                    writer.flush();
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-   
+
+    private boolean checkOnline(String text) {
+        String[] data = text.split(":");
+
+        for (String s : Server.mapUserList.keySet()) {
+            if (s.equals(data[0])) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private static boolean compare(String s, Socket socket) {
+        String[] data = s.split(":");
+        for (User u : Server.getUserList()) {
+            if (u.getUserName().equals(data[0]) && u.getPassWord().equals(data[1])) {
+                u.setSocket(socket);
+                return true;
+            }
+        }
+        return false;
+
+    }
 }
 
 class ClientHandler implements Runnable {
@@ -265,9 +394,15 @@ class RecieveFromClient implements Runnable {
             String msg;
             while (true) {
                 while ((msg = brBufferedReader.readLine()) != null) {
-//                    if (msg.equals("EXIT")) {
-//                        break;
-//                    }
+
+                    if (msg.startsWith(":@sendto:")) {
+                        msg = msg.replace(":@sendto:", "");
+                        String[] data = msg.split(":");
+                        String senderuser = data[0];
+                        Socket senderSocket = Server.mapUserList.get(senderuser);
+                        DataOutputStream out = new DataOutputStream(senderSocket.getOutputStream());
+                        out.writeUTF(data[1]);
+                        }
                     setClientSocket(socket);
                     Server.print("client " + i + ":" + msg);
                     System.out.println("From Client" + i + " : " + msg + " from port : " + socket.getPort());//print the message from client
